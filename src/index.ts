@@ -6,6 +6,8 @@ import { swagger } from "@elysiajs/swagger";
 import errorMiddleware from "./middleware/errorMiddleware";
 import responseMiddleware from "./middleware/responseMiddleware";
 import userController from "./controller/userController";
+import { staticPlugin } from "@elysiajs/static";
+import uploadController from "./controller/uploadController";
 
 
 AppDataSource.initialize().then(() => {
@@ -40,11 +42,14 @@ const app = new Elysia()
       }
     }
   ))
-  .onAfterHandle(responseMiddleware)
-  .onError(errorMiddleware)
+  .use(staticPlugin())
+
   .group("/api", group => {
     return group
-    .use(userController)
+      .onAfterHandle(responseMiddleware)
+      .onError(errorMiddleware)
+      .use(userController)
+      .use(uploadController)
   })
   .listen(3000);
 
