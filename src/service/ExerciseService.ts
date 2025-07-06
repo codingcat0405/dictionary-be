@@ -81,6 +81,7 @@ class ExerciseService {
   async getExercise(id: number) {
     return await this.repositories.exercise.findOne({ where: { id }, relations: ['questions'] });
   }
+  
   async submitResult(exerciseId: number, userId: number, result: string) {
     const exercise = await this.repositories.exercise.findOne({ where: { id: exerciseId }, relations: ['questions'] });
     if (!exercise) {

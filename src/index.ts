@@ -8,6 +8,8 @@ import responseMiddleware from "./middleware/responseMiddleware";
 import userController from "./controller/userController";
 import { staticPlugin } from "@elysiajs/static";
 import uploadController from "./controller/uploadController";
+import dictionaryController from "./controller/dictionaryController";
+import exerciseController from "./controller/exerciseController";
 
 
 AppDataSource.initialize().then(() => {
@@ -50,6 +52,8 @@ const app = new Elysia()
       .onError(errorMiddleware)
       .use(userController)
       .use(uploadController)
+      .use(dictionaryController)
+      .use(exerciseController)
   })
   .listen(3000);
 

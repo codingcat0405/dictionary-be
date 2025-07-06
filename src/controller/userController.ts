@@ -32,7 +32,7 @@ const userController = new Elysia()
       .get("/me", async ({user}) => {
         return user
       }, {
-        checkAuth: ['user'],
+        checkAuth: [],
         detail: {
           tags: ["User"],
           security: [

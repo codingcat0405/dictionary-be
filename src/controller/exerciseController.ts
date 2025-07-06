@@ -1,10 +1,118 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import ExerciseService from "../service/ExerciseService";
+import authMacro from "../macro/auth";
 
 const exerciseService = ExerciseService.getInstance();
 const exerciseController = new Elysia()
   .group("/exercise", group =>
     group
+    .use(authMacro)
+    .post('/', async ({body}) => {
+      return await exerciseService.createExercise(body);
+    }, {
+      detail: {
+        tags: ["Exercise"],
+        security: [
+          {JwtAuth: []}
+        ],
+      },
+      body: t.Object({
+        name: t.String(),
+        description: t.String(),
+        questions: t.Array(t.Object({
+          question: t.String(),
+          answerA: t.String(),
+          answerB: t.String(),
+          answerC: t.String(),
+          answerD: t.String(),
+          rightAnswer: t.Number(),
+        })),
+      }),
+      checkAuth: ['admin'],
+    })
+    .put('/:id', async ({params, body}) => {
+      return await exerciseService.updateExercise(params.id, body);
+    }, {
+      detail: {
+        tags: ["Exercise"],
+        security: [
+          {JwtAuth: []}
+        ],
+      },
+      body: t.Object({
+        name: t.Optional(t.String()),
+        description: t.Optional(t.String()),
+        questions: t.Optional(t.Array(t.Object({
+          question: t.Optional(t.String()),
+          answerA: t.Optional(t.String()),
+          answerB: t.Optional(t.String()),
+          answerC: t.Optional(t.String()),
+          answerD: t.Optional(t.String()),
+          rightAnswer: t.Optional(t.Number()),
+        }))),
+      }),
+      params: t.Object({
+        id: t.Number(),
+      }),
+      checkAuth: ['admin'],
+    })
+    .delete('/:id', async ({params}) => {
+      return await exerciseService.deleteExercise(+params.id);
+    }, {
+      detail: {
+        tags: ["Exercise"],
+        security: [
+          {JwtAuth: []}
+        ],
+      },
+      params: t.Object({
+        id: t.Number(),
+      }),
+      checkAuth: ['admin'],
+    })
+    .get('/:id', async ({params}) => {
+      return await exerciseService.getExercise(+params.id);
+    }, {
+      detail: {
+        tags: ["Exercise"],
+        security: [
+          {JwtAuth: []}
+        ],
+      },
+      checkAuth: [],
+      params: t.Object({
+        id: t.Number(),
+      })
+    })
+    .post('/submit', async ({body, user}) => {
+      return await exerciseService.submitResult(body.exerciseId, user.id, body.result);
+    }, {
+      detail: {
+        tags: ["Exercise"],
+        security: [
+          {JwtAuth: []}
+        ],
+      },
+      checkAuth: ['user'],
+      body: t.Object({
+        exerciseId: t.Number(),
+        result: t.String(),
+      })
+    })
+    .get('/user', async ({user, query}) => {
+      return await exerciseService.getUserExercises(user.id, query.page, query.limit);
+    }, {
+      detail: {
+        tags: ["Exercise"],
+        security: [
+          {JwtAuth: []}
+        ],
+      },
+      checkAuth: ['user'],
+      query: t.Object({
+        page: t.Number(),
+        limit: t.Number(),
+      })
+    })
   )
-
 export default exerciseController;

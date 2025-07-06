@@ -23,7 +23,7 @@ const authMacro = new Elysia()
             id: decoded.id,
             role: decoded.role
           }
-          if (!roles.includes(user.role)) {
+          if (roles.length > 0 && !roles.includes(user.role)) {
             throw new Error('Permission denied')
           }
           return {user}

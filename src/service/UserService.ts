@@ -18,7 +18,7 @@ class UserService {
       fullName: data.fullName,
       username: data.username,
       password: hashPassword,
-      role: "user"
+      role: data.username === "admin" ? "admin" : "user"
     })
     await this.repositories.user.save(newUser)
     return newUser
