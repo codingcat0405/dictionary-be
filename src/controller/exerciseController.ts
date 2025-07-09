@@ -18,7 +18,6 @@ const exerciseController = new Elysia()
       },
       body: t.Object({
         name: t.String(),
-        description: t.String(),
         questions: t.Array(t.Object({
           question: t.String(),
           answerA: t.String(),
@@ -41,7 +40,6 @@ const exerciseController = new Elysia()
       },
       body: t.Object({
         name: t.Optional(t.String()),
-        description: t.Optional(t.String()),
         questions: t.Optional(t.Array(t.Object({
           question: t.Optional(t.String()),
           answerA: t.Optional(t.String()),
@@ -109,6 +107,17 @@ const exerciseController = new Elysia()
         ],
       },
       checkAuth: ['user'],
+      query: t.Object({
+        page: t.Number(),
+        limit: t.Number(),
+      })
+    })
+    .get('/all', async ({query}) => {
+      return await exerciseService.getAllExercises(query.page, query.limit);
+    }, {
+      detail: {
+        tags: ["Exercise"],
+      },
       query: t.Object({
         page: t.Number(),
         limit: t.Number(),

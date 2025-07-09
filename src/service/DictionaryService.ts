@@ -39,6 +39,22 @@ class DictionaryService {
     return await this.repositories.dictionary.save(dictionary);
   }
 
+  async getAllWords(page = 0, limit = 10) {
+    const [words, total] = await this.repositories.dictionary.findAndCount({
+      skip: page * limit,
+      take: limit,
+      order: {
+        createdAt: 'DESC'
+      }
+    });
+    return {
+      contents: words,
+      total,
+      page,
+      limit
+    };
+  }
+
   async deleteDictionary(id: number) {
     const dictionary = await this.repositories.dictionary.findOne({ where: { id } });
     if (!dictionary) {

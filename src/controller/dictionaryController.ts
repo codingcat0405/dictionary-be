@@ -81,6 +81,17 @@ const dictionaryController = new Elysia()
         type: t.String(),
       }),
     })
+    .get('/all', async ({query}) => {
+      return await dictionaryService.getAllWords(query.page, query.limit);
+    }, {
+      detail: {
+        tags: ["Dictionary"],
+      },
+      query: t.Object({
+        page: t.Number(),
+        limit: t.Number(),
+      }),
+    })
     .get('/count', async () => {
       return await dictionaryService.count();
     }, {

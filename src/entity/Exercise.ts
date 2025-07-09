@@ -10,9 +10,6 @@ export class Exercise {
   @Column()
   name!: string
 
-  @Column()
-  description!: string
-
   @OneToMany(() => ExerciseQuestion, (question) => question.exercise)
   questions!: RelationWrapper<ExerciseQuestion[]>
 

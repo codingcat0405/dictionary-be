@@ -14,7 +14,6 @@ class ExerciseService {
 
   async createExercise(data: {
     name: string;
-    description: string;
     questions: {
       question: string;
       answerA: string;
@@ -26,7 +25,6 @@ class ExerciseService {
   }) {
     const exercise = this.repositories.exercise.create({
       name: data.name,
-      description: data.description,
     });
     const exerciseCreated = await this.repositories.exercise.save(exercise);
     const exerciseQuestions = data.questions.map((question) => {
@@ -41,7 +39,6 @@ class ExerciseService {
 
   async updateExercise(id: number, data: {
     name?: string;
-    description?: string;
     questions?: {
       question?: string;
       answerA?: string;
@@ -55,7 +52,9 @@ class ExerciseService {
     if (!exercise) {
       throw new Error('Exercise not found');
     }
-    Object.assign(exercise, data);
+    if (data.name) {
+      exercise.name = data.name;
+    }
     await this.repositories.exercise.save(exercise);
     //delete old questions
     await this.repositories.exerciseQuestion.delete({ exerciseId: id });
@@ -81,7 +80,7 @@ class ExerciseService {
   async getExercise(id: number) {
     return await this.repositories.exercise.findOne({ where: { id }, relations: ['questions'] });
   }
-  
+
   async submitResult(exerciseId: number, userId: number, result: string) {
     const exercise = await this.repositories.exercise.findOne({ where: { id: exerciseId }, relations: ['questions'] });
     if (!exercise) {
@@ -125,6 +124,18 @@ class ExerciseService {
       take: limit
     });
     return { content: userExerciseResults, total, page, limit };
+  }
+
+  async getAllExercises(page: number, limit: number) {
+    const [exercises, total] = await this.repositories.exercise.findAndCount({
+      relations: ['questions'],
+      skip: page * limit,
+      take: limit,
+      order: {
+        createdAt: 'DESC'
+      }
+    });
+    return { contents: exercises, total, page, limit };
   }
 }
 
