@@ -57,6 +57,26 @@ const app = new Elysia()
   })
   .listen(3000);
 
-console.log(`🦊 Elysia is running on ${app.server?.url}`);
-console.log(`🚀 Swagger is running on ${app.server?.url}swagger-ui`);
+// Get server IP address
+import { networkInterfaces } from 'os';
+
+function getLocalIP() {
+  const nets = networkInterfaces();
+  for (const name of Object.keys(nets)) {
+    const interfaces = nets[name];
+    if (interfaces) {
+      for (const netInterface of interfaces) {
+        // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+        if (netInterface.family === 'IPv4' && !netInterface.internal) {
+          return netInterface.address;
+        }
+      }
+    }
+  }
+  return 'localhost';
+}
+
+const serverIP = getLocalIP();
+console.log(`🌐 Server IP: ${serverIP}`);
+console.log(`🚀 Use this IP to configure your desktop app`);
 

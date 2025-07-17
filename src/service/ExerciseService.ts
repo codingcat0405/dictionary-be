@@ -78,7 +78,7 @@ class ExerciseService {
   }
 
   async getExercise(id: number) {
-    return await this.repositories.exercise.findOne({ where: { id }, relations: ['questions'] });
+    return await this.repositories.exercise.findOneOrFail({ where: { id }, relations: ['questions'] });
   }
 
   async submitResult(exerciseId: number, userId: number, result: string) {
@@ -136,6 +136,68 @@ class ExerciseService {
       }
     });
     return { contents: exercises, total, page, limit };
+  }
+
+
+
+  async getUserExerciseResult(userId: number, exerciseId: number) {
+    return await this.repositories.userExerciseResult.findOneOrFail({
+      where: { userId, exerciseId },
+      relations: ['exercise', 'exercise.questions']
+    });
+  }
+
+  async getExerciseStats() {
+    // Get all exercises with their user exercise results
+    const exercises = await this.repositories.exercise.find({
+      relations: ['userExerciseResults']
+    });
+
+    // Calculate stats for each exercise
+    const exerciseStats = exercises.map(exercise => ({
+      exerciseId: exercise.id,
+      exerciseName: exercise.name,
+      submissionCount: exercise.userExerciseResults.length
+    }));
+
+    // Calculate totals
+    const totalExercises = exercises.length;
+    const totalSubmissions = exercises.reduce((sum, exercise) =>
+      sum + exercise.userExerciseResults.length, 0
+    );
+
+    return {
+      totalExercises,
+      totalSubmissions,
+      exerciseStats
+    };
+  }
+  async getExerciseSubmissions(exerciseId: number) {
+    const submissions = await this.repositories.userExerciseResult.find({
+      where: { exerciseId },
+      relations: ['user'],
+      order: {
+        createdAt: 'DESC'
+      }
+    });
+
+    return {
+      submissions: submissions.map(submission => ({
+        id: submission.id,
+        userId: submission.userId,
+        exerciseId: submission.exerciseId,
+        result: submission.result,
+        score: submission.score,
+        createdAt: submission.createdAt,
+        updatedAt: submission.updatedAt,
+        user: {
+          id: submission.user.id,
+          username: submission.user.username,
+          fullName: submission.user.fullName
+        }
+      })),
+      total: submissions.length
+    };
   }
 }
 
