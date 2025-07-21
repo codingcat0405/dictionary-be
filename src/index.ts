@@ -10,6 +10,7 @@ import { staticPlugin } from "@elysiajs/static";
 import uploadController from "./controller/uploadController";
 import dictionaryController from "./controller/dictionaryController";
 import exerciseController from "./controller/exerciseController";
+import { networkInterfaces } from 'os';
 
 
 AppDataSource.initialize().then(() => {
@@ -57,8 +58,6 @@ const app = new Elysia()
   })
   .listen(3000);
 
-// Get server IP address
-import { networkInterfaces } from 'os';
 
 function getLocalIP() {
   const nets = networkInterfaces();
