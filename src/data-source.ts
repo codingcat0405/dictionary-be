@@ -5,10 +5,16 @@ import { Exercise } from "./entity/Exercise"
 import { ExerciseQuestion } from "./entity/ExerciseQuestion"
 import { Dictionary } from "./entity/Dictionary"
 import { UserExerciseResult } from "./entity/UserExerciseResult"
+import { mkdirSync } from "fs"
+import path from "path"
+
+const dataDir = path.join(process.cwd(), 'data')
+mkdirSync(dataDir, { recursive: true })
+
 
 export const AppDataSource = new DataSource({
     type: "sqlite",
-    database: "database.sqlite",
+    database: path.join(dataDir, "database.sqlite"),
     synchronize: true,
     logging: false,
     entities: [User, Exercise, ExerciseQuestion, Dictionary, UserExerciseResult],

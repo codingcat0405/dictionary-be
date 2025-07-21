@@ -11,7 +11,12 @@ import uploadController from "./controller/uploadController";
 import dictionaryController from "./controller/dictionaryController";
 import exerciseController from "./controller/exerciseController";
 import { networkInterfaces } from 'os';
+import path from "path";
+import { mkdirSync } from "fs";
 
+//create /public/uploads if not exists
+const publicDir = path.join(process.cwd(), 'public')
+mkdirSync(publicDir, { recursive: true })
 
 AppDataSource.initialize().then(() => {
   console.log("Database connected")
