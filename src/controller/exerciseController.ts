@@ -25,6 +25,7 @@ const exerciseController = new Elysia()
             answerC: t.String(),
             answerD: t.String(),
             rightAnswer: t.Number(),
+            audioUrl: t.Optional(t.String()),
           })),
         }),
         checkAuth: ['admin'],
@@ -47,6 +48,7 @@ const exerciseController = new Elysia()
             answerC: t.Optional(t.String()),
             answerD: t.Optional(t.String()),
             rightAnswer: t.Optional(t.Number()),
+            audioUrl: t.Optional(t.String()),
           }))),
         }),
         params: t.Object({

@@ -7,9 +7,11 @@ import errorMiddleware from "./middleware/errorMiddleware";
 import responseMiddleware from "./middleware/responseMiddleware";
 import userController from "./controller/userController";
 import { staticPlugin } from "@elysiajs/static";
+import { readFileSync, existsSync } from "fs";
 import uploadController from "./controller/uploadController";
 import dictionaryController from "./controller/dictionaryController";
 import exerciseController from "./controller/exerciseController";
+import curriculumController from "./controller/curriculumController";
 import { networkInterfaces } from 'os';
 import path from "path";
 import { mkdirSync } from "fs";
@@ -50,7 +52,44 @@ const app = new Elysia()
       }
     }
   ))
-  .use(staticPlugin())
+  // Custom static file handler for uploads
+  .get("/uploads/*", ({ params, set }) => {
+    const fileName = params["*"]
+    const filePath = path.join(process.cwd(), "public", "uploads", fileName)
+
+    // Add CORS headers for static files
+    set.headers['Access-Control-Allow-Origin'] = '*'
+    set.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+    set.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+
+    if (existsSync(filePath)) {
+      const file = readFileSync(filePath)
+      const ext = path.extname(filePath).slice(1)
+      const contentType = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'webp': 'image/webp',
+        'mp3': 'audio/mpeg',
+        'wav': 'audio/wav',
+        'ogg': 'audio/ogg',
+        'm4a': 'audio/mp4',
+        'aac': 'audio/aac',
+        'pdf': 'application/pdf',
+        'doc': 'application/msword',
+        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'txt': 'text/plain',
+        'rtf': 'application/rtf'
+      }[ext] || 'application/octet-stream'
+
+      set.headers['Content-Type'] = contentType
+      set.headers['Cache-Control'] = 'public, max-age=31536000'
+      return file
+    }
+    set.status = 404
+    return "File not found"
+  })
 
   .group("/api", group => {
     return group
@@ -60,6 +99,7 @@ const app = new Elysia()
       .use(uploadController)
       .use(dictionaryController)
       .use(exerciseController)
+      .use(curriculumController)
   })
   .listen(3000);
 

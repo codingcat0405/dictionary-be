@@ -34,6 +34,12 @@ export class ExerciseQuestion {
   @Column()
   rightAnswer!: number // 0: answerA, 1: answerB, 2: answerC, 3: answerD
 
+  @Column({
+    type: 'text',
+    nullable: true
+  })
+  audioUrl?: string // URL to the audio file for this question
+
   @Column()
   exerciseId!: number
 

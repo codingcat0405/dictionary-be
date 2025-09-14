@@ -5,6 +5,7 @@ import { Exercise } from "./entity/Exercise"
 import { ExerciseQuestion } from "./entity/ExerciseQuestion"
 import { Dictionary } from "./entity/Dictionary"
 import { UserExerciseResult } from "./entity/UserExerciseResult"
+import { Curriculum } from "./entity/Curriculum"
 import { mkdirSync } from "fs"
 import path from "path"
 
@@ -17,7 +18,7 @@ export const AppDataSource = new DataSource({
     database: path.join(dataDir, "database.sqlite"),
     synchronize: true,
     logging: false,
-    entities: [User, Exercise, ExerciseQuestion, Dictionary, UserExerciseResult],
+    entities: [User, Exercise, ExerciseQuestion, Dictionary, UserExerciseResult, Curriculum],
     migrations: [],
     subscribers: [],
 })
@@ -28,6 +29,7 @@ export interface Repositories {
     exerciseQuestion: Repository<ExerciseQuestion>,
     dictionary: Repository<Dictionary>,
     userExerciseResult: Repository<UserExerciseResult>,
+    curriculum: Repository<Curriculum>,
 }
 
 let cached: Repositories | null = null
@@ -41,6 +43,7 @@ export function getRepositories(): Repositories {
         exerciseQuestion: AppDataSource.getRepository(ExerciseQuestion),
         dictionary: AppDataSource.getRepository(Dictionary),
         userExerciseResult: AppDataSource.getRepository(UserExerciseResult),
+        curriculum: AppDataSource.getRepository(Curriculum),
     }
     cached = repositories
     return repositories
