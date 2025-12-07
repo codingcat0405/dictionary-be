@@ -7,7 +7,6 @@ import errorMiddleware from "./middleware/errorMiddleware";
 import responseMiddleware from "./middleware/responseMiddleware";
 import userController from "./controller/userController";
 import { staticPlugin } from "@elysiajs/static";
-import { readFileSync, existsSync } from "fs";
 import uploadController from "./controller/uploadController";
 import dictionaryController from "./controller/dictionaryController";
 import exerciseController from "./controller/exerciseController";
@@ -18,11 +17,18 @@ import { mkdirSync } from "fs";
 
 //create /public/uploads if not exists
 const publicDir = path.join(process.cwd(), 'public')
+const uploadsDir = path.join(publicDir, 'uploads')
 mkdirSync(publicDir, { recursive: true })
+mkdirSync(uploadsDir, { recursive: true })
 
-AppDataSource.initialize().then(() => {
-  console.log("Database connected")
-})
+AppDataSource.initialize()
+  .then(() => {
+    console.log("Database connected")
+  })
+  .catch((error) => {
+    console.error("Database connection error:", error)
+  })
+
 const app = new Elysia()
   .use(cors())
   .get("/", () => "It's works!")
@@ -52,20 +58,22 @@ const app = new Elysia()
       }
     }
   ))
-  // Custom static file handler for uploads
-  .get("/uploads/*", ({ params, set }) => {
-    const fileName = params["*"]
-    const filePath = path.join(process.cwd(), "public", "uploads", fileName)
+  // Custom route handler for uploaded files (before /api group to avoid middleware)
+  // This ensures files are served correctly without middleware interference
+  .get("/public/uploads/*", ({ params, set }) => {
+    const { readFileSync, existsSync } = require("fs");
+    const fileName = params["*"];
+    const filePath = path.join(process.cwd(), "public", "uploads", fileName);
 
-    // Add CORS headers for static files
-    set.headers['Access-Control-Allow-Origin'] = '*'
-    set.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
-    set.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    // Add CORS headers
+    set.headers['Access-Control-Allow-Origin'] = '*';
+    set.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS';
+    set.headers['Access-Control-Allow-Headers'] = 'Content-Type';
 
     if (existsSync(filePath)) {
-      const file = readFileSync(filePath)
-      const ext = path.extname(filePath).slice(1)
-      const contentType = {
+      const file = readFileSync(filePath);
+      const ext = path.extname(filePath).slice(1).toLowerCase();
+      const contentType: { [key: string]: string } = {
         'jpg': 'image/jpeg',
         'jpeg': 'image/jpeg',
         'png': 'image/png',
@@ -81,15 +89,24 @@ const app = new Elysia()
         'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'txt': 'text/plain',
         'rtf': 'application/rtf'
-      }[ext] || 'application/octet-stream'
-
-      set.headers['Content-Type'] = contentType
-      set.headers['Cache-Control'] = 'public, max-age=31536000'
-      return file
+      };
+      set.headers['Content-Type'] = contentType[ext] || 'application/octet-stream';
+      set.headers['Cache-Control'] = 'public, max-age=31536000';
+      return file;
     }
-    set.status = 404
-    return "File not found"
+    set.status = 404;
+    return "File not found";
   })
+  // Use Elysia static plugin for other public files (optional, for future use)
+  .use(staticPlugin({
+    assets: "public",
+    prefix: "/public",
+    ignorePatterns: ["uploads/**"], // Ignore uploads folder as we handle it above
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'public, max-age=31536000'
+    }
+  }))
 
   .group("/api", group => {
     return group
