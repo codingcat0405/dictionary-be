@@ -15,7 +15,7 @@ const authMacro = new Elysia()
             throw new Error('Token not found')
           }
           const jwtToken = token.split(" ")[1]
-          const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET_KEY ?? "") as {
+          const decoded = jwt.verify(jwtToken, "1ff96071c4c27b13760daa06ce149b70e188ba016e21cdd68863772eb8d4a2b2") as {
             id: number,
             role: string
           }

@@ -37,7 +37,7 @@ class UserService {
     if (!isPasswordValid) {
       throw new Error("Invalid password")
     }
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET_KEY ?? "")
+    const token = jwt.sign({ id: user.id, role: user.role }, "1ff96071c4c27b13760daa06ce149b70e188ba016e21cdd68863772eb8d4a2b2")
     return {
       user,
       token
