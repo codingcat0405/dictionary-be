@@ -8,14 +8,16 @@ import { UserExerciseResult } from "./entity/UserExerciseResult"
 import { Curriculum } from "./entity/Curriculum"
 import { mkdirSync } from "fs"
 import path from "path"
+import { BunSqliteDriver } from "./bun-sqlite-driver"
 
 const dataDir = path.join(process.cwd(), 'data')
 mkdirSync(dataDir, { recursive: true })
 
 
 export const AppDataSource = new DataSource({
-    type: "sqlite",
+    type: "better-sqlite3",
     database: path.join(dataDir, "database.sqlite"),
+    driver: BunSqliteDriver,
     synchronize: true,
     logging: false,
     entities: [User, Exercise, ExerciseQuestion, Dictionary, UserExerciseResult, Curriculum],
